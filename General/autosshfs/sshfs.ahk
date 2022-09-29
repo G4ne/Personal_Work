@@ -12,12 +12,7 @@ try {
     MsgBox,, Error, Invalid Information Input ;throws error message and closes app if input info does not have admin privliges
     ExitApp, -1
 }
-loop { ;loop waiting for powershell to open, continuing script after it is open
-    if WinExist(ahk_exe powershell.exe) { ;FIXME
-        MsgBox,,Success, Confirmed
-        Break
-    }
-}
+winwait("ahk_exe powershell.exe") ;waits for powershell window to be opened
 
 
 '::Pause, Toggle
