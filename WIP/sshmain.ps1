@@ -1,0 +1,1 @@
+net use R: \\sshfs.r\aj-mo@24.217.173.16
