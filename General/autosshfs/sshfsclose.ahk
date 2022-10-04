@@ -13,13 +13,16 @@ try {
 }
 WinWait, ahk_exe powershell.exe ;waits for powershell window to be opened
 Sleep, 1000 ;waits for powershell to initialize itself
-InputBox, contact, Address, Please enter your computer's Address (Ex: 192.168.1.11 or 24.182.162.1)
-Send net use R: /delete ;deletes mounted drive
+InputBox, drivename, Drive Name, Please enter the letter name of the mounted drive you wish to be deleted without the colons(Ex: R or Z). Leave blank for R.
+If (%drivename% = "" or %drivename% = " ") {
+    drivename = R
+}
+Send net use %drivename%: /delete ;deletes mounted drive
 Sleep, 100
 Send {Return}
+Sleep, 1000
 WinClose, ahk_exe powershell.exe
 
 ExitApp, 0
 
-'::Pause, Toggle
 =::ExitApp
