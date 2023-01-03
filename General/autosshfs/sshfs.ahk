@@ -29,11 +29,11 @@ MsgBox, 4, Username and Password, Do you need to input your Username and Passwor
 IfMsgBox, Yes
 {
     Sleep, 1500
-    Send %mounteduname%
+    Send %uname%
     Sleep, 150
     Send {Return}
     Sleep, 250
-    Send %mountedpassword%
+    Send %password%
     Sleep, 500
     Send {Return}
 }
