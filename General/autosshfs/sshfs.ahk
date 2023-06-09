@@ -23,17 +23,18 @@ WinWait, ahk_exe powershell.exe ;waits for powershell window to be opened
 Sleep, 1000 ;waits for powershell to initialize itself
 InputBox, contact, Address, Please enter your computer's Address (Ex: 192.168.1.11 or 24.182.162.1)
 Send net use R: \\sshfs.r\%uname%@%contact%
-Sleep, 100
+Sleep, 500
 Send {Return}
+Sleep, 500
 MsgBox, 4, Username and Password, Do you need to input your Username and Password?
-IfMsgBox, Yes
-{
+IfMsgBox, Yes {
+    
     Sleep, 1500
-    Send %mounteduname%
+    Send %uname%
     Sleep, 150
     Send {Return}
     Sleep, 250
-    Send %mountedpassword%
+    Send %password%
     Sleep, 500
     Send {Return}
 }
