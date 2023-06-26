@@ -5,6 +5,8 @@ clicker_on := false ;A variable to keep track of whether the autoclicker is on o
 
 Gui, MyGui:New ;Begin building Gui
 
+Gui, MyGui:+LabelMyGui_ ;Creates custom labels to refer to the GUI if it is no the focused window
+
 Gui, MyGui:Margin, 35, 10
 
 Gui, MyGui:Add, Text, x35 y10, Input the amount of miliseconds between clicks
@@ -27,7 +29,7 @@ Gui, MyGui:Show, w300 h150 ;End building Gui and show it
 
 
 =:: ;Close Script
-Gui, Destroy
+Gui, MyGui:Destroy
 ExitApp
 
 
@@ -46,7 +48,13 @@ if (clicker_on == true) { ;Returns after releasing any keys that are being held 
 else { ;Starts clicking using the interval from the Gui
     GuiControl, MyGui:, Start, Stop ;Changes the text on the button to stop from start
     clicker_on := true
-    SetTimer, _Run, %wait_time% ;Loops _Run on a timer, clicking at the specified interval
+    if (hold_button) { ;If hold is true, we wait a little longer on the timer so there is a noticable gap between held clicks
+        long_wait := wait_time * 2
+        SetTimer, _Run, %long_wait% ;Loops _Run on a timer with double wait (for above reason)
+    }
+    else {
+        SetTimer, _Run, %wait_time% ;Normal looping of _Run on a timer
+    }
     return
 }
 
@@ -88,5 +96,5 @@ _Run(waittime, LR, hold) { ;The main function used to do the clicking
     return
 }
 
-GuiClose: ;Runs when the Gui is closed
+MyGui_Close: ;Runs when the Gui is closed
 ExitApp 
