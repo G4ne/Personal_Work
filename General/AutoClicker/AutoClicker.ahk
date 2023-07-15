@@ -60,11 +60,11 @@ else { ;Starts clicking using the interval from the Gui
     clicker_on := true
     if (hold_button) { ;If hold is true, we wait a little longer on the timer so there is a noticable gap between held clicks
         long_wait := wait_time * 2
-        goto _Run ;Runs the autoclicker once while the timer is running to prevent an awkward waiting period before the first click
+        gosub _Run ;Runs the autoclicker once while the timer is running to prevent an awkward waiting period before the first click
         SetTimer, _Run, %long_wait% ;Loops _Run on a timer with double wait (for above reason)
     }
     else {
-        goto _Run ;Runs autoclicker for the same reason as highlighted above
+        gosub _Run ;Runs autoclicker for the same reason as highlighted above
         SetTimer, _Run, %wait_time% ;Normal looping of _Run on a timer
     }
     SetTimer, _Timekeeping, 1000 ;starts timer
