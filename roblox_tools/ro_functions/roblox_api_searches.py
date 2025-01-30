@@ -1,7 +1,6 @@
 
 from time import sleep
 import requests
-import os
 
 '''
 Searches for users on Roblox using the supplied keyword
@@ -78,7 +77,7 @@ def search_friends(user_id):
 
         friends_list = response.json()["data"]
 
-        for friend in friends_list: #iterate through all the friends, adding the ID all non-banned or deleted accounts to the ID list
+        for friend in friends_list: #iterate through all the friends, adding the ID to the ID list
 
                 user_id_list.append(friend["id"])
 
@@ -100,11 +99,3 @@ def get_ro_username(user_id):
         return response.json()["name"]
     else:
         return "Invalid user id."
-
-
-def main(): #testing
-    
-    print(get_ro_username("hohoho"))
-
-if __name__ == "__main__":
-    main()
