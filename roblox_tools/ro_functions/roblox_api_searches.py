@@ -9,7 +9,7 @@ Searches for users on Roblox using the supplied keyword
 @arg id_list: Takes a list to which the function will add the IDs it receieves from the API
 @arg name_list: Takes a list to which the function will append the names it recieves from the API
 @arg next_page_cursor: If supplied, this will change the page that the API supplies when requested. should never be used but is there for extremely large searches
-@return: Returns None as the main work the function is doing is adding things to the given lists '''
+@return: Returns None as the main work the function is doing is adding IDs and names to the given lists '''
 def search_user(username_keyword, id_list, name_list, next_page_cursor=""):
     
     parameters = {"keyword": username_keyword, "cursor": next_page_cursor, "limit": 100}
@@ -64,10 +64,47 @@ def search_badges(user_id, badge_id, cursor_loc=""):
 
     return False
 
-def main():
-    first_half = os.path.split(os.getcwd())[0]
-    file_loc = first_half + "/roblox_api_searches.py"
-    print(file_loc)
+'''
+Searches and lists all of a user's friends
+@arg username_keyword: The id of the user whose friends list is being checked
+@return: Returns a list which contains the IDs of all the requested user's friends '''
+def search_friends(user_id):
+
+    response = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/friends")
+
+    user_id_list = []
+
+    if response.status_code == 200: #This is the OK status code, allows us to move forward
+
+        friends_list = response.json()["data"]
+
+        for friend in friends_list: #iterate through all the friends, adding the ID all non-banned or deleted accounts to the ID list
+
+                user_id_list.append(friend["id"])
+
+    else:
+        print("Requested user does not exist.")
+
+    return user_id_list
+
+'''
+Gets and returns the Roblox username of a user given their user ID. Mostly used to convert user IDs into more readable usernames
+@arg user_id: The user ID of the account to get the name of
+@return: Returns a string of the user's username
+'''
+def get_ro_username(user_id):
+    
+    response = requests.get(f"https://users.roblox.com/v1/users/{user_id}")
+
+    if response.status_code == 200: #OK status code
+        return response.json()["name"]
+    else:
+        return "Invalid user id."
+
+
+def main(): #testing
+    
+    print(get_ro_username("hohoho"))
 
 if __name__ == "__main__":
     main()
