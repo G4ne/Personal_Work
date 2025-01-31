@@ -1,13 +1,9 @@
 
-from os import environ, path
+from os import environ, path, makedirs
 from dotenv import load_dotenv
 import requests
 import io
-
-if __name__ == "__main__": #adds the directory to the sys path and imports the needed functions from ro_functions
-    import sys
-    sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-    from ro_functions.roblox_api_searches import search_badges, search_user
+from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file
 
 '''
 Processes a list of user IDs and prints whether each user has a certain badge to the console
@@ -26,22 +22,23 @@ def process_user_ids(requested_badge_id):
     badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{requested_badge_id}") #gets the name of the badge to be logged in output
     badge_name = badge_name_request.json()["name"]
 
-    with open("badge_results.txt", "w") as output:
+    output = create_output_file("badge_results.txt")
 
-        output.write("\n") #gives whitespace at the top for ease of reading
+    output.write("\n") #gives whitespace at the top for ease of reading
 
-        for i in range(len(user_ids)): #iterates through all user ids that were found matching the keyword and checks if they have the given badge, writing the result to an output file
+    for i in range(len(user_ids)): #iterates through all user ids that were found matching the keyword and checks if they have the given badge, writing the result to an output file
 
-            if search_badges(user_ids[i], requested_badge_id):
+        if search_badges(user_ids[i], requested_badge_id):
 
-                output.write(f"{user_ids[i]} ({user_names[i]})\n")
-                output.write(f"User has the {badge_name} badge\n\n")
+            output.write(f"{user_ids[i]} ({user_names[i]})\n")
+            output.write(f"User has the {badge_name} badge\n\n")
 
-            else:
+        else:
 
-                output.write(f"{user_ids[i]} ({user_names[i]})\n")
-                output.write(f"User does not have the {badge_name} badge\n\n")
+            output.write(f"{user_ids[i]} ({user_names[i]})\n")
+            output.write(f"User does not have the {badge_name} badge\n\n")
 
+    output.close()
     
     print(f"\nDone!")
     return None
@@ -49,7 +46,7 @@ def process_user_ids(requested_badge_id):
 
 def main():
 
-    load_dotenv() #Adds .env file to environment
+    load_dotenv() #Adds .env file to environ
 
     try: #error handling
 

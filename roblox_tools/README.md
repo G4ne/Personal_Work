@@ -1,0 +1,9 @@
+# Roblox API Scripts
+
+Made these scripts to interact with the Roblox API in various ways. The ro_functions directory is required for any of these to function.
+
+Badge_checker.py - Searches Roblox for users given a keyword from input and tells you if the discovered users have a certain badge. You need the badge ID of the badge you're looking for and it should be placed in the .env file (just run the script if there is no .env file).
+
+Friend_check - Coming soon.
+
+All output is placed inside a folder named "output_files" which is created when you first run any of these scripts.
