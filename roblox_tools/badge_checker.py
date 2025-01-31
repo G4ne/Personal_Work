@@ -54,13 +54,13 @@ def main():
 
     except KeyError: #makes a .env file to be filled with the desired badge ID
 
-        print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for in the file.")
+        print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for and run the script again.")
 
         with open(".env", "w") as replacement:
 
             replacement.write("# Fill in badge ID below.\n")
             replacement.write("BADGE_ID=")
-            print("Please enter the ID of the badge you'd like to search users for.")
+            print("\nPlease enter the ID of the badge you'd like to search users for.")
             replacement.write(input())
             replacement.close()
 
