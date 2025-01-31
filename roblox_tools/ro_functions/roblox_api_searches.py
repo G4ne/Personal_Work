@@ -1,6 +1,8 @@
 
 from time import sleep
 import requests
+import io
+from os import path, makedirs
 
 '''
 Searches for users on Roblox using the supplied keyword
@@ -73,7 +75,7 @@ def search_friends(user_id):
 
     user_id_list = []
 
-    if response.status_code == 200: #This is the OK status code, allows us to move forward
+    if response.status_code == 200: #OK status code, allows us to move forward
 
         friends_list = response.json()["data"]
 
@@ -99,3 +101,20 @@ def get_ro_username(user_id):
         return response.json()["name"]
     else:
         return "Invalid user id."
+
+'''
+Creates an output file in the output_files directory
+@arg file_name: A string of the name of the file to create
+@return: returns a file object that can be written to
+'''
+def create_output_file(file_name):
+   
+    if path.dirname(__file__) == "ro_functions/": #Checks the current directory and sets the correct name
+        dir_name = path.dirname(path.dirname(__file__))
+    else:
+        dir_name = path.dirname(__file__)
+
+    makedirs(f"{path.dirname(path.dirname(__file__))}/output_files", exist_ok=True) #Creates the output_files directory if it doesn't exist
+    file_loc = f"{path.dirname(path.dirname(__file__))}/output_files/{file_name}" #Sets the file location as output files with the file name at the end
+
+    return open(file_loc, "w")
