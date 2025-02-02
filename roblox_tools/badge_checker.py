@@ -14,10 +14,9 @@ def process_user_ids(requested_badge_id):
     print("Enter the keyword you'd like to search for usernames with.\n")
     user_keyword = input()
 
-    user_ids = [] #makes lists for the user ids and names to be stored in after being found with the keyword
-    user_names = []
+    user_ids = [] #makes list for the user ids and names to be stored in after being found with the keyword
 
-    search_user(user_keyword, user_ids, user_names) #searches, using the keyword, for users and adds their id and name to the list
+    search_user(user_keyword, user_ids) #searches, using the keyword, for users and adds their id and name to the list
 
     badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{requested_badge_id}") #gets the name of the badge to be logged in output
     badge_name = badge_name_request.json()["name"]
