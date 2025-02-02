@@ -8,10 +8,9 @@ from os import path, makedirs
 Searches for users on Roblox using the supplied keyword
 @arg username_keyword: The keyword to be used to search for users
 @arg id_list: Takes a list to which the function will add the IDs it receieves from the API
-@arg name_list: Takes a list to which the function will append the names it recieves from the API
 @arg next_page_cursor: If supplied, this will change the page that the API supplies when requested. should never be used but is there for extremely large searches
 @return: Returns None as the main work the function is doing is adding IDs and names to the given lists '''
-def search_user(username_keyword, id_list, name_list, next_page_cursor=""):
+def search_user(username_keyword, id_list, next_page_cursor=""):
     
     parameters = {"keyword": username_keyword, "cursor": next_page_cursor, "limit": 100}
     response = requests.get("https://users.roblox.com/v1/users/search", params=parameters)
@@ -31,14 +30,13 @@ def search_user(username_keyword, id_list, name_list, next_page_cursor=""):
 
         for user in user_list: #Appends the id and name of the user given by the API
             id_list.append(user["id"])
-            name_list.append(user["name"])
 
     else: #Shouldn't happen but catches either of the two other error codes we can get
         print(f"Error: {response.status_code}")
         return None
     
     if response.json()["nextPageCursor"] != None: #Checks to see if there are more pages of results and recursively checks the pages if they exist
-        search_user(username_keyword, id_list, name_list, response.json()["nextPageCursor"])
+        search_user(username_keyword, id_list, response.json()["nextPageCursor"])
 
     return None
 
