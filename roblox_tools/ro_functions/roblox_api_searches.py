@@ -136,12 +136,3 @@ def replace_env():
         replacement.close()
 
     return None
-
-def main():
-
-    replace_env()
-
-    return
-
-if __name__ == "__main__":
-    main()
