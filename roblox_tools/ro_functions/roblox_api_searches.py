@@ -47,23 +47,18 @@ def search_user(username_keyword, id_list, name_list, next_page_cursor=""):
 Searches a given user's badge list for the given badge using their ids
 @arg user_id: The ID of the user is being checked
 @arg badge_id: The ID of the badge the user is being checked for
-@arg cursor_loc: Similar to the above function's cursor argument, if this is supplied, it will change the page that the Roblox API supplies when queried 
-@return: Returns a bool representative of if the user has the badge '''
-def search_badges(user_id, badge_id, cursor_loc=""):
+@return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
+def search_badges(user_id, badge_id):
     
-    response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges", params={"limit": 10,"cursor": cursor_loc})
+    response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
-    badges = response.json()["data"]
-
-    for badge in badges: #Iterates through the badges provided by the API and checks their IDs against the badge ID we're looking for
-        if badge["id"] == int(badge_id):
-            return True
-            
-    if response.json()["nextPageCursor"] != None: #If there are more pages of badges, this recursively checks them.
-        if search_badges(user_id, badge_id, response.json()["nextPageCursor"]):
-            return True
-
-    return False
+    if response.status_code == 200:
+        return True
+    elif response.status_code == 204:
+        return False
+    else:
+        print("Invalid user / User does not exist")
+        return None
 
 '''
 Searches and lists all of a user's friends
@@ -109,7 +104,7 @@ Creates an output file in the output_files directory
 '''
 def create_output_file(file_name):
    
-    if path.dirname(__file__) == "ro_functions/": #Checks the current directory and sets the correct name
+    if path.basename(path.dirname(__file__)) == "ro_functions": #Checks the current directory and sets the correct name
         dir_name = path.dirname(path.dirname(__file__))
     else:
         dir_name = path.dirname(__file__)
