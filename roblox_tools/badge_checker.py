@@ -55,6 +55,7 @@ def main():
     except KeyError: #makes a .env file to be filled with the desired badge ID
 
         replace_env()
+        print("\nPlease run the script again.")
 
     except Exception as error_code:
         print(f"Error: {error_code}")
