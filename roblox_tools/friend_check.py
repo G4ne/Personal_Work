@@ -4,6 +4,12 @@ from dotenv import load_dotenv
 from os import environ
 import requests
 
+
+'''
+Takes searches a given user's friends list and outputs whether each friend has the given badge
+@arg badge_id: The ID of the badge to be checked for in the friends list
+@return: Returns None as the main output of the function is output to a file
+'''
 def process_user_friends(badge_id):
     
     print("Please enter the ID of the user whose friends you'd like to check.\n")
@@ -30,23 +36,26 @@ def process_user_friends(badge_id):
     badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{badge_id}") #gets the name of the badge to be logged in output
     badge_name = badge_name_request.json()["name"]
 
-    output_file = create_output_file("friend_search_result.txt")
+    output_file = create_output_file("friend_search_result.txt") #Creates the output file in its correct location
 
     for friend in friends_list: #Iterate through the given user's friends list and prints the appropriate statement to output.
         
         if search_badges(friend, badge_id):
-            output_file.write(f"\n{get_ro_username(friend)} ({friend}) has the {badge_name} badge.")
+            output_file.write(f"\n{get_ro_username(friend)} ({friend}) has the {badge_name} badge.\n")
+
         elif not search_badges(friend, badge_id):
-            output_file.write(f"\n{get_ro_username(friend)} ({friend}) does not have the {badge_name} badge.")
+            output_file.write(f"\n{get_ro_username(friend)} ({friend}) does not have the {badge_name} badge.\n")
+
         elif search_badges(friend, badge_id) == None:
-            output_file.write(f"\n{get_ro_username(friend)} does not exist / is invalid.")
+            output_file.write(f"\n{get_ro_username(friend)} does not exist / is invalid.\n")
+
 
     print("\nDone!")
     return None
 
 def main():
 
-    load_dotenv()
+    load_dotenv() #Loads .env variables into environ
 
     try: #Main work
 
@@ -57,7 +66,7 @@ def main():
         replace_env()
         print("\nPlease run the script again.")
 
-    except Exception as ex:
+    except Exception as ex: #Prints any other exception that might happen
 
         print(f"Error: {ex}")
 
