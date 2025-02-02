@@ -114,7 +114,34 @@ def create_output_file(file_name):
     else:
         dir_name = path.dirname(__file__)
 
-    makedirs(f"{path.dirname(path.dirname(__file__))}/output_files", exist_ok=True) #Creates the output_files directory if it doesn't exist
-    file_loc = f"{path.dirname(path.dirname(__file__))}/output_files/{file_name}" #Sets the file location as output files with the file name at the end
+    makedirs(f"{dir_name}/output_files", exist_ok=True) #Creates the output_files directory if it doesn't exist
+    file_loc = f"{dir_name}/output_files/{file_name}" #Sets the file location as output files with the file name at the end
 
     return open(file_loc, "w")
+
+'''
+Creates and fills a new .env file
+@return: Returns none as its main work is creating a filling a file
+'''
+def replace_env():
+
+    print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for and run the script again.")
+
+    with open(f"{path.dirname(path.dirname(__file__))}/.env", "w") as replacement:
+
+        replacement.write("# Fill in badge ID below.\n")
+        replacement.write("BADGE_ID=")
+        print("\nPlease enter the ID of the badge you'd like to search users for.")
+        replacement.write(input())
+        replacement.close()
+
+    return None
+
+def main():
+
+    replace_env()
+
+    return
+
+if __name__ == "__main__":
+    main()
