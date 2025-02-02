@@ -1,5 +1,5 @@
 
-from os import environ, path, makedirs
+from os import environ
 from dotenv import load_dotenv
 import requests
 import io
