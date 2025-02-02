@@ -3,7 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 import requests
 import io
-from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file
+from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env
 
 '''
 Processes a list of user IDs and prints whether each user has a certain badge to the console
@@ -54,15 +54,7 @@ def main():
 
     except KeyError: #makes a .env file to be filled with the desired badge ID
 
-        print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for and run the script again.")
-
-        with open(".env", "w") as replacement:
-
-            replacement.write("# Fill in badge ID below.\n")
-            replacement.write("BADGE_ID=")
-            print("\nPlease enter the ID of the badge you'd like to search users for.")
-            replacement.write(input())
-            replacement.close()
+        replace_env()
 
     except Exception as error_code:
         print(f"Error: {error_code}")
