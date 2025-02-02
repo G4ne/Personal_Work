@@ -3,7 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 import requests
 import io
-from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env
+from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env, get_ro_username
 
 '''
 Processes a list of user IDs and prints whether each user has a certain badge to the console
@@ -25,16 +25,16 @@ def process_user_ids(requested_badge_id):
 
     output.write("\n") #gives whitespace at the top for ease of reading
 
-    for i in range(len(user_ids)): #iterates through all user ids that were found matching the keyword and checks if they have the given badge, writing the result to an output file
+    for u_id in user_ids: #iterates through all user ids that were found matching the keyword and checks if they have the given badge, writing the result to an output file
 
-        if search_badges(user_ids[i], requested_badge_id):
+        if search_badges(u_id, requested_badge_id):
 
-            output.write(f"{user_ids[i]} ({user_names[i]})\n")
+            output.write(f"{u_id} ({get_ro_username(u_id)})\n")
             output.write(f"User has the {badge_name} badge\n\n")
 
         else:
 
-            output.write(f"{user_ids[i]} ({user_names[i]})\n")
+            output.write(f"{u_id} ({get_ro_username(u_id)})\n")
             output.write(f"User does not have the {badge_name} badge\n\n")
 
     output.close()
