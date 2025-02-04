@@ -43,13 +43,13 @@ def process_user_friends(badge_id):
         has_badge = search_badges(friend, badge_id)
 
         if has_badge:
-            output_file.write(f"{get_ro_username(friend)} ({friend}) has the {badge_name} badge.\n")
+            output_file.write(f"\n{get_ro_username(friend)} ({friend}) has the {badge_name} badge.\n")
 
         elif not has_badge:
-            output_file.write(f"{get_ro_username(friend)} ({friend}) does not have the {badge_name} badge.\n")
+            output_file.write(f"\n{get_ro_username(friend)} ({friend}) does not have the {badge_name} badge.\n")
 
         elif has_badge == None:
-            output_file.write(f"{get_ro_username(friend)} does not exist / is invalid.\n")
+            output_file.write(f"\n{get_ro_username(friend)} does not exist / is invalid.\n")
 
 
     print("\nDone!")
