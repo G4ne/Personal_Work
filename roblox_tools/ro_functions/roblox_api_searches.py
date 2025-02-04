@@ -50,12 +50,14 @@ def search_badges(user_id, badge_id):
     
     response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
-    if response.status_code == 200:
+    if response.status_code == 200: #Good response code
         return True
-    elif response.status_code == 204:
+    elif response.status_code == 204: #Response code representing the badge not being awarded/earned
         return False
-    else:
-        print("Invalid user / User does not exist")
+    elif response.status_code == 429: #Too many requests response code, can be ignored as it has no effect for us
+        pass
+    elif response.status_code == 404: #Bad user ID response code
+        print("Invalid user / User does not exist.")
         return None
 
 '''
