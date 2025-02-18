@@ -38,7 +38,9 @@ def process_user_friends(badge_id):
 
     output_file = create_output_file("friend_search_result.txt") #Creates the output file in its correct location
 
-    for friend in friends_list: #Iterate through the given user's friends list and prints the appropriate statement to output.
+    output_file.write(f"\n{get_ro_username(user_id)}'s friends\n") #Prints the user whose friends list is being checked to the top of the file for documentation
+
+    for friend in friends_list: #Iterate through the given user's friends list and prints the appropriate statement to output
         
         has_badge = search_badges(friend, badge_id)
 
