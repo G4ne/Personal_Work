@@ -25,7 +25,7 @@ def process_user_ids(requested_badge_id):
 
     output.write("\n") #gives whitespace at the top for ease of reading
 
-    output.write(f"Searched username: {user_keyword}\n") #writes the searched username to the top of the file for logging purposes
+    output.write(f"Searched username: {user_keyword}\n\n") #writes the searched username to the top of the file for logging purposes
 
     for u_id in user_ids: #iterates through all user ids that were found matching the keyword and checks if they have the given badge, writing the result to an output file
 
