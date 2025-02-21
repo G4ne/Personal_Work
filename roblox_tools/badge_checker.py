@@ -3,7 +3,7 @@ from os import environ
 from dotenv import load_dotenv
 import requests
 import io
-from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env, get_ro_username
+from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env, get_ro_username, get_badge_name
 
 '''
 Processes a list of user IDs and prints whether each user has a certain badge to the console
@@ -18,8 +18,11 @@ def process_user_ids(requested_badge_id):
 
     search_user(user_keyword, user_ids) #searches, using the keyword, for users and adds their id and name to the list
 
-    badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{requested_badge_id}") #gets the name of the badge to be logged in output
-    badge_name = badge_name_request.json()["name"]
+    try:
+        badge_name = get_badge_name(requested_badge_id) #gets badge name for logging purposes
+    
+    except:
+        print("Please edit the .env file and enter a valid badge ID or delete the .env file, run the program again, and enter a valid badge ID.")
 
     output = create_output_file("badge_results.txt")
 

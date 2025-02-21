@@ -96,6 +96,22 @@ def get_ro_username(user_id):
         return response.json()["name"]
     else:
         return "Invalid user id."
+    
+'''
+Gets and returns the name of a given Roblox badge.
+@param badge_id: The ID of the desired badge.
+@return: Returns a string of the badge's ID.
+'''
+def get_badge_name(badge_id):
+
+    badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{badge_id}") # gets the name of the badge to be logged in output
+
+    if badge_name_request.status_code == 404:
+        print("Invalid badge ID entered.")
+        raise Exception("InvalidID")
+    
+    else:
+        return badge_name_request.json()["name"]
 
 '''
 Creates an output file in the output_files directory

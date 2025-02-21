@@ -1,5 +1,5 @@
 
-from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_friends, replace_env, search_badges
+from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_friends, replace_env, search_badges, get_badge_name
 from dotenv import load_dotenv
 from os import environ
 import requests
@@ -15,7 +15,7 @@ def process_user_friends(badge_id):
     print("Please enter the ID of the user whose friends you'd like to check.\n")
     valid_u_id = False
 
-    while not valid_u_id: #Makes sure the entered user ID is valid, looping until a valid UID is entered.
+    while not valid_u_id: # Makes sure the entered user ID is valid, looping until a valid UID is entered.
 
         user_id = input()
 
@@ -31,16 +31,19 @@ def process_user_friends(badge_id):
         except Exception as user_excep:
             print(f"Error: {user_excep}")
 
-    friends_list = search_friends(user_id) #Gets the user's friends list from the search_friends function
+    friends_list = search_friends(user_id) # Gets the user's friends list from the search_friends function
 
-    badge_name_request = requests.get(f"https://badges.roblox.com/v1/badges/{badge_id}") #gets the name of the badge to be logged in output
-    badge_name = badge_name_request.json()["name"]
+    try:
+        badge_name = get_badge_name(badge_id) #gets badge name for logging purposes
+    
+    except:
+        print("Please edit the .env file and enter a valid badge ID or delete the .env file, run the program again, and enter a valid badge ID.")
 
-    output_file = create_output_file("friend_search_result.txt") #Creates the output file in its correct location
+    output_file = create_output_file("friend_search_result.txt") # Creates the output file in its correct location
 
-    output_file.write(f"\n{get_ro_username(user_id)}'s friends\n") #Prints the user whose friends list is being checked to the top of the file for documentation
+    output_file.write(f"\n{get_ro_username(user_id)}'s friends\n") # Prints the user whose friends list is being checked to the top of the file for documentation
 
-    for friend in friends_list: #Iterate through the given user's friends list and prints the appropriate statement to output
+    for friend in friends_list: # Iterate through the given user's friends list and prints the appropriate statement to output
         
         has_badge = search_badges(friend, badge_id)
 
@@ -59,18 +62,18 @@ def process_user_friends(badge_id):
 
 def main():
 
-    load_dotenv() #Loads .env variables into environ
+    load_dotenv() # Loads .env variables into environ
 
-    try: #Main work
+    try: # Main work
 
         process_user_friends(environ["BADGE_ID"])
     
-    except KeyError: #Creates and fills new env file if none exist
+    except KeyError: # Creates and fills new env file if none exist
 
         replace_env()
         print("\nPlease run the script again.")
 
-    except Exception as ex: #Prints any other exception that might happen
+    except Exception as ex: # Prints any other exception that might happen
 
         print(f"Error: {ex}")
 
