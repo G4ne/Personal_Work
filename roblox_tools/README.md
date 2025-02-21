@@ -6,7 +6,7 @@ Badge_checker.py - Searches Roblox for users given a keyword from input and tell
 
 Friend_check - Takes a Roblox user ID from input and searches the given user's friends list, outputting if each of the given user's friends has a specified badge. Again, you need the badge ID of the badge you're looking for and the ID should be placed in the .env file. (Run the script if there is no .env file, one will automatically be made)
 
-Alt_check - Coming Soon.
+Alt_check - Checks the output of the previous two programs and flags accounts that have common alt account attributes. (Barcode username, containing the main accounts name in the alt's, alt in the username, etc).
 
 All scripts in this folder REQUIRE the ro_functions directory to exist in the same directory as the script.
 
