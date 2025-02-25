@@ -66,7 +66,7 @@ def main():
 
     try: # Main work
 
-        process_user_friends(environ["BADGE_ID"])
+        process_user_friends(int(environ["BADGE_ID"]))
     
     except KeyError: # Creates and fills new env file if none exist
 

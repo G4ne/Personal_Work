@@ -175,7 +175,7 @@ def main():
     print("\nValid mode selected. Checking...\n")
 
     try:
-        alt_detector(selected_mode, environ["BADGE_ID"])
+        alt_detector(selected_mode, int(environ["BADGE_ID"]))
 
     except KeyError:
         replace_env()

@@ -54,7 +54,7 @@ def main():
 
     try: #error handling
 
-        process_user_ids(environ["BADGE_ID"])
+        process_user_ids(int(environ["BADGE_ID"]))
 
     except KeyError: #makes a .env file to be filled with the desired badge ID
 
