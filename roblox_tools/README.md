@@ -10,4 +10,4 @@ Alt_check - Checks the output of the previous two programs and flags accounts th
 
 All scripts in this folder REQUIRE the ro_functions directory to exist in the same directory as the script.
 
-All output is placed inside a folder named "output_files" which is created when you first run any of these scripts. You probably shouldn't move this folder or change its contents as some scripts (the upcoming Alt_check file) rely on one or more output files to function.
+All output is placed inside a folder named "output_files" which is created when you first run any of these scripts. You probably shouldn't move this folder or change its contents as some scripts rely on one or more output files to function.
