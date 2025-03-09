@@ -48,19 +48,13 @@ Recursively searches a given user's badge list for the given badge using their i
 @return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
 def search_badges(user_id, badge_id, page_cursor=""):
     
-    response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges", params={"limit": 50, "cursor":page_cursor})
+    response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
-    if response.status_code == 200: #Good response code
-        badge_list = response.json()["data"]
+    if response.status_code == 200: #Positive response code
+        return True
 
-        for badge in badge_list: #Iterates through the badges on the current page
-            if badge["id"] == badge_id: #If the badge is found, return true
-                return True
-    
-        if response.json()["nextPageCursor"] != None: #Recursively checks the next page if one exists
-            return search_badges(user_id, badge_id, response.json()["nextPageCursor"])
-        
-        return False #If all the recursion and checks go through without the badge being found, return false
+    elif response.status_code == 204: #Negative response code
+        return False
 
     elif response.status_code == 429: #Too many requests response code, can be ignored as it has no effect for us
         pass
@@ -156,3 +150,14 @@ def replace_env():
         replacement.close()
 
     return None
+
+
+def main():
+
+    u_id = 1742340709
+    badge_id = int(2124529364)
+
+    search_badges(u_id, badge_id)
+
+if __name__ == "__main__":
+    main()
