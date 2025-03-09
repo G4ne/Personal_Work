@@ -33,6 +33,8 @@ def process_user_friends(badge_id):
 
     friends_list = search_friends(user_id) # Gets the user's friends list from the search_friends function
 
+    print(f"\nChecking {len(friends_list)} friends.\n")
+
     try:
         badge_name = get_badge_name(badge_id) #gets badge name for logging purposes
     
@@ -45,6 +47,7 @@ def process_user_friends(badge_id):
 
     for friend in friends_list: # Iterate through the given user's friends list and prints the appropriate statement to output
         
+        print(f"Checking: {get_ro_username(friend)}")
         has_badge = search_badges(friend, badge_id)
 
         if has_badge:
