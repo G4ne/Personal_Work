@@ -46,8 +46,14 @@ def process_user_friends(badge_id):
     output_file.write(f"\n{get_ro_username(user_id)}'s friends\n") # Prints the user whose friends list is being checked to the top of the file for documentation
 
     for friend in friends_list: # Iterate through the given user's friends list and prints the appropriate statement to output
+
+        friend_username = get_ro_username(friend)
+
+        if friend_username == "Invalid user id.": # Checks if the friend being checked still has a valid account. This prunes off accounts that have been deactivated / deleted / banned.
+            print("User no longer exists.")
+            continue
         
-        print(f"Checking: {get_ro_username(friend)}")
+        print(f"Checking: {friend_username}")
         has_badge = search_badges(friend, badge_id)
 
         if has_badge:
@@ -61,6 +67,7 @@ def process_user_friends(badge_id):
 
 
     print("\nDone!")
+    output_file.close()
     return None
 
 def main():
