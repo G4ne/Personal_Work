@@ -150,14 +150,3 @@ def replace_env():
         replacement.close()
 
     return None
-
-
-def main():
-
-    u_id = 1742340709
-    badge_id = int(2124529364)
-
-    search_badges(u_id, badge_id)
-
-if __name__ == "__main__":
-    main()
