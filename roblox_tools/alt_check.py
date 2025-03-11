@@ -1,4 +1,4 @@
-from ro_functions.roblox_api_searches import get_ro_username, search_badges, create_output_file, replace_env, get_badge_name
+from ro_functions.roblox_api_searches import get_ro_username, search_badges, create_output_file, check_env, get_badge_name
 from dotenv import load_dotenv
 from os import environ, path
 import io
@@ -148,8 +148,10 @@ def alt_detector(mode, requested_badge_id):
 
 
 def main():
+
+    check_env() # Ensures the .env file exists before it is loaded in
     
-    #Sets up some valuable variables
+    # Sets up some valuable variables
     load_dotenv()
     valid_selected_mode = False
     selected_mode = ""
@@ -176,9 +178,6 @@ def main():
 
     try:
         alt_detector(selected_mode, int(environ["BADGE_ID"]))
-
-    except KeyError:
-        replace_env()
 
     except Exception as e: # Prints errors. More than likely won't happen but its there for safety
         print(f"Error: {e}.")

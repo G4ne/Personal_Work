@@ -1,5 +1,5 @@
 
-from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_friends, replace_env, search_badges, get_badge_name
+from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_friends, check_env, search_badges, get_badge_name
 from dotenv import load_dotenv
 from os import environ
 import requests
@@ -72,18 +72,15 @@ def process_user_friends(badge_id):
 
 def main():
 
+    check_env() # Ensures the .env file exists before it is loaded in
+
     load_dotenv() # Loads .env variables into environ
 
     try: # Main work
 
         process_user_friends(int(environ["BADGE_ID"]))
-    
-    except KeyError: # Creates and fills new env file if none exist
 
-        replace_env()
-        print("\nPlease run the script again.")
-
-    except Exception as ex: # Prints any other exception that might happen
+    except Exception as ex: # Prints any exceptions that might happen
 
         print(f"Error: {ex}")
 

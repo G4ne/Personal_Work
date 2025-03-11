@@ -139,7 +139,7 @@ Creates and fills a new .env file
 '''
 def replace_env():
 
-    print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for and run the script again.")
+    print(".env file not detected. Replacement file created. Please enter the ID of the badge you wish to search for.")
 
     with open(f"{path.dirname(path.dirname(__file__))}/.env", "w") as replacement:
 
@@ -148,5 +148,16 @@ def replace_env():
         print("\nPlease enter the ID of the badge you'd like to search users for.")
         replacement.write(input())
         replacement.close()
+
+    return None
+
+'''
+Checks if the .env file exists and replaces it if it does not exist
+@return: Returns none as its main work is checking and potentially replacing the .env file
+'''
+def check_env():
+    
+    if not path.isfile(".env"):
+        replace_env()
 
     return None
