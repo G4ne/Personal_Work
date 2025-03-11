@@ -2,7 +2,6 @@
 from os import environ
 from dotenv import load_dotenv
 import requests
-import io
 from ro_functions.roblox_api_searches import search_badges, search_user, create_output_file, replace_env, get_ro_username, get_badge_name
 
 '''
