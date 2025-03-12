@@ -1,84 +1,12 @@
-from ro_functions.roblox_api_searches import get_ro_username, search_badges, create_output_file, check_env, get_badge_name
+from ro_functions.roblox_api_searches import get_ro_username, search_badges, create_output_file, check_env, get_badge_name, compare_username, strip_main_username
 from dotenv import load_dotenv
 from os import environ, path
 import io
 import requests
 
 '''
-Finds and does some ugly procedures to strip the "'s" from the end of the user whose friends list is being checked for alts
-@param mode: Decides how the function treats the input data. changes how it handles the line based off which mode the program is run in
-@param main_user_line: Takes the line (using .readline) that the main username is on
-@return: Returns the string of the main user's username.
-'''
-def strip_main_username(mode, main_user_line):
-
-    if mode == "badge":
-        return main_user_line.split()[2]
-    else:
-        main_username = main_user_line.split()[0].split("'") # Takes the given line, splits it, takes the first word, then splits that word with ' as the delimiter, essentially separating the main username from the s at the end.
-        return main_username[0]
-
-'''
-Checks whether a username only includes I's and L's (barcode name).
-@param username: The username to be checked.
-@return: Returns a boolean representing whether the name only contains I's and L's. True if it only contains I's and L's, False if not.
-'''
-def check_barcode(username):
-    
-    char_list = ["a", "b", "c", "d", "e", "f", "g", "h", "j", "k", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-
-    for char in char_list:
-        
-        if char in username:
-            return False
-    
-    return True
-
-'''
-Runs a few checks on a given user, comparing them to the 'main account'.
-@param mode: Takes the mode the user selected and doesn't check some criteria if it is the 'badge' mode
-@param main_user: The 'main account' mentioned above. This is always the person whose friends list was checked using friend_check.py
-@param compared_user_id: Takes the user_id of the secondary user so as to reduce the amount of calls made to the Roblox api. The ID is needed to get the badge count.
-@return: Returns a tuple of the status and exit messages. The status represents if the user is a suspected alt. The exit messages describe why they're suspected as an alt (one or more of the above reasons)
-'''
-def compare_username(mode, main_user, compared_user_id):
-    
-    # Initializes a few useful variables
-    status = False
-    exit_messages = []
-    compared_username = get_ro_username(compared_user_id).lower()
-
-    # Counts the amount  of badges the given user has
-    badge_req = requests.get(f"https://badges.roblox.com/v1/users/{compared_user_id}/badges", params={"limit": 100})
-    badge_count = len(badge_req.json()["data"])
-
-    # Checks a few criteria that could qualify them as an alt and flags them if they meet those criteria
-    if main_user.strip("1234567890").lower() in compared_username and mode != "badge": # Doesn't check if the main username is the same as the compared username if using the badge mode. Doesn't make sense to use this criteria based off what the badge_checker does
-
-        status = True
-        exit_messages.append("Main username found in username.")
-
-    if "alt" in compared_username: # Checks if the user has 'alt' in their username
-        status = True
-        exit_messages.append("'Alt' found in username.")
-    
-    if badge_count < 10: # Checks the user's badge count and flags them if its low
-        status = True
-        exit_messages.append("User does not have many badges.")
-
-    if compared_username.isdigit(): # Check if the user has only numbers in their username
-        status = True
-        exit_messages.append("User's username is only numbers.")
-
-    if check_barcode(compared_username): # Checks if the user has a barcode username (only I's and L's) These are used to make it harder to find / ban alt accounts as capital I's and lowercase l's are hard to distinguish
-        status = True
-        exit_messages.append("Barcode username (only I's and L's).")
-
-    return status, exit_messages
-
-'''
 The main work of the program. Checks the friend_search_result.txt file for potential alts, using common alt terms (alt, *name*2, etc)
-@param mode: FINISH ME
+@param mode: The version of the function that runs, can be either 'friend' or 'badge' depending on what file is being analyzed
 @param badge_id: Takes the ID of the badge that is being searched for. Retrieved from the .env file.
 @return: Returns none as its output is printed to a file that is created in the function
 '''
@@ -176,11 +104,11 @@ def main():
     
     print("\nValid mode selected. Checking...\n")
 
-    try:
-        alt_detector(selected_mode, int(environ["BADGE_ID"]))
+    #try:
+    alt_detector(selected_mode, int(environ["BADGE_ID"]))
 
-    except Exception as e: # Prints errors. More than likely won't happen but its there for safety
-        print(f"Error: {e}.")
+    #except Exception as e: # Prints errors. More than likely won't happen but its there for safety
+    #    print(f"Error: {e}.")
 
     return
 
