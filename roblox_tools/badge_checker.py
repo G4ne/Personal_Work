@@ -15,7 +15,7 @@ def process_user_ids(requested_badge_id):
 
     user_ids = [] #makes list for the user ids and names to be stored in after being found with the keyword
 
-    search_user(user_keyword, user_ids) #searches, using the keyword, for users and adds their id and name to the list
+    search_user(user_keyword, user_ids) #searches, using the keyword, for users and adds their id to the list
 
     try:
         badge_name = get_badge_name(requested_badge_id) #gets badge name for logging purposes
