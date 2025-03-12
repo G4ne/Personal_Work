@@ -46,7 +46,7 @@ Recursively searches a given user's badge list for the given badge using their i
 @arg user_id: The ID of the user is being checked
 @arg badge_id: The ID of the badge the user is being checked for
 @return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
-def search_badges(user_id, badge_id, page_cursor=""):
+def search_badges(user_id, badge_id):
     
     response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
@@ -147,6 +147,7 @@ def replace_env():
         replacement.write("BADGE_ID=")
         print("\nPlease enter the ID of the badge you'd like to search users for.")
         replacement.write(input())
+        print() #Whitespace
         replacement.close()
 
     return None
