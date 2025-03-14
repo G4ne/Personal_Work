@@ -61,7 +61,7 @@ def search_badges(user_id, badge_id):
 
     elif response.status_code == 404: # Bad user ID response code
         print("Invalid user / User does not exist.")
-        return None
+        return False
 
 '''
 Searches and lists all of a user's friends
@@ -89,7 +89,7 @@ def search_friends(user_id):
 '''
 Gets and returns the Roblox username of a user given their user ID. Mostly used to convert user IDs into more readable usernames
 @arg user_id: The user ID of the account to get the name of
-@return: Returns a string of the user's username
+@return: Returns a string of the user's username or None if there was an error
 '''
 def get_ro_username(user_id):
     
@@ -98,7 +98,7 @@ def get_ro_username(user_id):
     if response.status_code == 200: #OK status code
         return response.json()["name"]
     else:
-        return "Invalid user id."
+        return None
     
 '''
 Gets and returns the name of a given Roblox badge.
@@ -235,7 +235,22 @@ Checks if the .env file exists and replaces it if it does not exist
 '''
 def check_env():
     
-    if not path.isfile(".env"):
+    if not path.isfile(f"{path.dirname(path.dirname(__file__))}.env"):
         replace_env()
 
+    return None
+
+'''
+Takes a int representing a new badge ID and overwrites the old badge ID held in the .env file
+@param new_id: The new badge ID to be placed into the .env file
+@return: Returns None as its work is modifying a file
+'''
+def modify_env(new_id):
+    
+    with open(f"{path.dirname(path.dirname(__file__))}/.env", "w") as env:
+
+        env.write("# Fill in badge ID below.\n")
+        env.write(f"BADGE_ID={new_id}")
+        env.close()
+    
     return None
