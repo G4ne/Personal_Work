@@ -48,7 +48,7 @@ Recursively searches a given user's badge list for the given badge using their i
 @return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
 def search_badges(user_id, badge_id):
 
-    sleep(1) # Delay used to not overload the Roblox API
+    sleep(0.5) # Delay used to not overload the Roblox API
     
     response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
@@ -183,7 +183,7 @@ def compare_username(mode, main_user, compared_user_id):
     
     if badge_count < 10: # Checks the user's badge count and flags them if its low
         status = True
-        exit_messages.append("User does not have many badges.")
+        exit_messages.append("User does not have many badges. This could be a false positive due to some users' privacy settings.")
 
     if compared_username.isdigit(): # Check if the user has only numbers in their username
         status = True
