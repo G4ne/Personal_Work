@@ -48,7 +48,7 @@ Recursively searches a given user's badge list for the given badge using their i
 @return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
 def search_badges(user_id, badge_id):
 
-    sleep(0.5) # Delay used to not overload the Roblox API
+    sleep(1) # Delay used to not overload the Roblox API
     
     response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
@@ -161,7 +161,6 @@ def compare_username(mode, main_user, compared_user_id):
     status = False
     exit_messages = []
     compared_username = get_ro_username(compared_user_id).lower()
-    main_username = get_ro_username(main_user).lower()
 
     # Counts the amount  of badges the given user has
     badge_req = requests.get(f"https://badges.roblox.com/v1/users/{compared_user_id}/badges", params={"limit": 100})
