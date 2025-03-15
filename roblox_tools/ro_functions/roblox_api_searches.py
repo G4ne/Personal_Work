@@ -47,6 +47,8 @@ Recursively searches a given user's badge list for the given badge using their i
 @arg badge_id: The ID of the badge the user is being checked for
 @return: Returns a bool representative of if the user has the badge, returns None if there was an error '''
 def search_badges(user_id, badge_id):
+
+    sleep(1) # Delay used to not overload the Roblox API
     
     response = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date")
 
@@ -223,7 +225,15 @@ def replace_env():
         replacement.write("# Fill in badge ID below.\n")
         replacement.write("BADGE_ID=")
         print("\nPlease enter the ID of the badge you'd like to search users for.")
-        replacement.write(input())
+
+        new_id = input()
+
+        while not validate_badge(new_id):
+
+            print("\nInvalid badge ID input. Please input a valid badge ID.")
+            new_id = input()
+
+        replacement.write(new_id)
         print() # Whitespace
         replacement.close()
 
@@ -235,7 +245,7 @@ Checks if the .env file exists and replaces it if it does not exist
 '''
 def check_env():
     
-    if not path.isfile(f"{path.dirname(path.dirname(__file__))}.env"):
+    if not path.isfile(f"{path.dirname(path.dirname(__file__))}/.env"):
         replace_env()
 
     return None
@@ -246,7 +256,7 @@ Takes a int representing a new badge ID and overwrites the old badge ID held in 
 @return: Returns None as its work is modifying a file
 '''
 def modify_env(new_id):
-    
+
     with open(f"{path.dirname(path.dirname(__file__))}/.env", "w") as env:
 
         env.write("# Fill in badge ID below.\n")
@@ -254,3 +264,18 @@ def modify_env(new_id):
         env.close()
     
     return None
+
+'''
+Ensures that an entered badge is a valid badge
+@param badge: The ID of the badge to be validated
+@return: Returns a bool representing if the badge is a valid badge or not
+'''
+def validate_badge(badge):
+
+    badge_request = requests.get(f"https://badges.roblox.com/v1/badges/{badge}")
+
+    if badge_request.status_code == 404:
+        return False
+    
+    else:
+        return True
