@@ -3,6 +3,7 @@ from time import sleep
 import requests
 import io
 from os import path, makedirs
+from dotenv import dotenv_values
 
 '''
 Searches for users on Roblox using the supplied keyword
@@ -68,23 +69,42 @@ def search_badges(user_id, badge_id):
 '''
 Searches and lists all of a user's friends
 @arg username_keyword: The id of the user whose friends list is being checked
+@arg mode: Sets the mode of what is being searched, friends or followers (and maybe following in the future)
+@arg next_page: Defaults to none but if supplied, means the next page of results should be accessed (if the user is following a lot of people)
+@arg user_id_list: Takes a list of user_ids (usually from previous iterations of the function) for the cases of recursion. If there is no previous iteration of the function, a new list is made.
 @return: Returns a list which contains the IDs of all the requested user's friends '''
-def search_friends(user_id):
+def search_others(user_id, mode, next_page=None, user_id_list=None):
 
-    response = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/friends")
+    # Determines what call is made to the API based off what option the user selected when calling the function
+    if mode == "friend": # Calls Roblox's friends API call
+        response = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/friends")
+    
+    elif mode == "follower": # Calls Roblox's followers API call
+        response = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/followers", params={"limit": 25, "cursor": next_page})
 
-    user_id_list = []
+        if response.json()["nextPageCursor"] != None: # If there are more than one page of followers, sets the function up for recursion
+            next_page_value = response.json()["nextPageCursor"]
+            recurse = True
+
+        else:
+            recurse = False
+
+    if user_id_list == None: # If there is no supplied list for IDs to be added to, makes a new empty list. Primarily useful for recursion
+        user_id_list = []
 
     if response.status_code == 200: # OK status code, allows us to move forward
 
-        friends_list = response.json()["data"]
+        others_list = response.json()["data"]
 
-        for friend in friends_list: # Iterate through all the friends, adding the ID to the ID list
+        for user in others_list: # Iterate through all the friends, adding the ID to the ID list
 
-                user_id_list.append(friend["id"])
+                user_id_list.append(user["id"])
 
     else:
         print("Requested user does not exist.")
+
+    if recurse: # If there are more pages to check (in the case of searching followers), recursively checks all pages
+        search_others(user_id, mode, next_page_value, user_id_list)
 
     return user_id_list
 
@@ -161,6 +181,8 @@ def compare_username(mode, main_user, compared_user_id):
     status = False
     exit_messages = []
     compared_username = get_ro_username(compared_user_id).lower()
+    main_username = get_ro_username(main_user)
+    env_badge = dotenv_values(f"{path.dirname(path.dirname(__file__))}/.env")["BADGE_ID"] # This is the ID of the badge held in the .env file, used to rule out some false positives
 
     # Counts the amount  of badges the given user has
     badge_req = requests.get(f"https://badges.roblox.com/v1/users/{compared_user_id}/badges", params={"limit": 100})
@@ -172,7 +194,7 @@ def compare_username(mode, main_user, compared_user_id):
         badge_count = len(badge_req.json()["data"])
 
     # Checks a few criteria that could qualify them as an alt and flags them if they meet those criteria
-    if main_user.strip("1234567890").lower() in compared_username and mode != "badge": # Doesn't check if the main username is the same as the compared username if using the badge mode. Doesn't make sense to use this criteria based off what the badge_checker does
+    if main_username.strip("1234567890").lower() in compared_username and mode != "badge": # Doesn't check if the main username is the same as the compared username if using the badge mode. Doesn't make sense to use this criteria based off what the badge_checker does
 
         status = True
         exit_messages.append("Main username found in username.")
@@ -182,8 +204,12 @@ def compare_username(mode, main_user, compared_user_id):
         exit_messages.append("'Alt' found in username.")
     
     if badge_count < 10: # Checks the user's badge count and flags them if its low
-        status = True
-        exit_messages.append("User does not have many badges. This could be a false positive due to some users' privacy settings.")
+        if badge_count == 0 and search_badges(main_user, env_badge): # Rules out fairly common false positives since the Roblox API won't give someone's badge list if they have certain privacy settings
+            pass
+
+        else:
+            status = True
+            exit_messages.append("User does not have many badges. (Be aware, this can be a false positive due to privacy settings.)")
 
     if compared_username.isdigit(): # Check if the user has only numbers in their username
         status = True

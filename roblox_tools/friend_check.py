@@ -1,5 +1,5 @@
 
-from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_friends, check_env, search_badges, get_badge_name
+from ro_functions.roblox_api_searches import create_output_file, get_ro_username, search_others, check_env, search_badges, get_badge_name
 from dotenv import load_dotenv
 from os import environ
 import requests
@@ -31,7 +31,7 @@ def process_user_friends(badge_id):
         except Exception as user_excep:
             print(f"Error: {user_excep}")
 
-    friends_list = search_friends(user_id) # Gets the user's friends list from the search_friends function
+    friends_list = search_others(user_id, "friend") # Gets the user's friends list from the search_others function
 
     print(f"\nChecking {len(friends_list)} friends.\n")
 
