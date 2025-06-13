@@ -75,6 +75,8 @@ Searches and lists all of a user's friends
 @return: Returns a list which contains the IDs of all the requested user's friends '''
 def search_others(user_id, mode, next_page=None, user_id_list=None):
 
+    recurse = False # Set up a variable for later
+
     # Determines what call is made to the API based off what option the user selected when calling the function
     if mode == "friend": # Calls Roblox's friends API call
         response = requests.get(f"https://friends.roblox.com/v1/users/{user_id}/friends")
@@ -85,9 +87,6 @@ def search_others(user_id, mode, next_page=None, user_id_list=None):
         if response.json()["nextPageCursor"] != None: # If there are more than one page of followers, sets the function up for recursion
             next_page_value = response.json()["nextPageCursor"]
             recurse = True
-
-        else:
-            recurse = False
 
     if user_id_list == None: # If there is no supplied list for IDs to be added to, makes a new empty list. Primarily useful for recursion
         user_id_list = []
