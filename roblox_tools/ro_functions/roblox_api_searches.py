@@ -136,6 +136,22 @@ def get_badge_name(badge_id):
     
     else:
         return badge_name_request.json()["name"]
+    
+'''
+Gets and returns the date a given badge was acquired
+@param user_id: The ID of the user whose badge data is being acquired
+@param badge_id: ID of the desired badge
+@return: Returns a list consisting of the year, month, day, and time the badge was earned
+'''
+def get_badge_date(user_id, badge_id):
+    
+    badge_request = requests.get(f"https://badges.roblox.com/v1/users/{user_id}/badges/{badge_id}/awarded-date").json()["awardedDate"]
+
+    time_list = badge_request[0:10].split("-")
+
+    time_list.append(badge_request[11:16])
+
+    return time_list
 
 '''
 Finds and does some ugly procedures to strip the "'s" from the end of the user whose friends list is being checked for alts
