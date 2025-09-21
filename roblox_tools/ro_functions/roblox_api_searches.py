@@ -1,9 +1,12 @@
 
-from time import sleep
+from time import sleep, strptime, time, mktime
 import requests
 import io
 from os import path, makedirs
 from dotenv import dotenv_values
+from math import ceil
+
+from rich.console import Console
 
 '''
 Searches for users on Roblox using the supplied keyword
@@ -67,7 +70,7 @@ def search_badges(user_id, badge_id):
         return False
 
 '''
-Searches and lists all of a user's friends
+Searches and lists all of a user's friends or followers
 @arg username_keyword: The id of the user whose friends list is being checked
 @arg mode: Sets the mode of what is being searched, friends or followers (and maybe following in the future)
 @arg next_page: Defaults to none but if supplied, means the next page of results should be accessed (if the user is following a lot of people)
@@ -116,10 +119,11 @@ def get_ro_username(user_id):
     
     response = requests.get(f"https://users.roblox.com/v1/users/{user_id}")
 
-    if response.status_code == 200: #OK status code
+    if response.status_code == 200: # OK status code
+        sleep(0.1) # Very short delay to avoid overloading API
         return response.json()["name"]
     else:
-        return None
+        return response.status_code
     
 '''
 Gets and returns the name of a given Roblox badge.
@@ -184,11 +188,77 @@ def check_barcode(username):
     return True
 
 '''
+Does some math to calculate a user's account age
+@param user_id: The ID of the user to be checked
+@return: Returns an int of the user's account age in days
+'''
+def get_acc_age(user_id):
+
+    test_req = requests.get(f"https://users.roblox.com/v1/users/{user_id}") # Gets the user's account info from the API
+    date_gotten = test_req.json()["created"] # Grabs the 'created' section of the user info
+    
+    badge_date = strptime(f"{int(date_gotten[0:4])} {int(date_gotten[5:7])} {int(date_gotten[8:10])} {int(date_gotten[11:13])} {int(date_gotten[14:16])} {int(date_gotten[17:19])}", "%Y %m %d %H %M %S") # Converts the creation date of the account into a time struct
+
+    days_old = ceil((time() - mktime(badge_date)) / 86400) # Does some math based off the current time, calculating the time in seconds that the account has existed and then converting that to days
+
+    return days_old
+
+'''
+Compares two user's groups
+@param user_one: The first user of whose groups are being compared
+@param user_two: The second user of whose groups are being compared
+@return: The number of groups the two users have in common.
+'''
+def group_comparison(user_one, user_two):
+
+    if user_one == None: # If user_one is None, that means two users are not being compared and this function should be skipped
+        return 0
+    
+    # Initialize useful variables
+    user_one_groups = requests.get(f"https://groups.roblox.com/v1/users/{user_one}/groups/roles").json()["data"]
+    id_comparison_list = []
+    user_two_groups = requests.get(f"https://groups.roblox.com/v1/users/{user_two}/groups/roles").json()["data"]
+    groups_in_common = 0
+
+    for group in user_one_groups: # Iterate through the first user's groups and add all the groups' ids to a list
+        id_comparison_list.append(group["group"]["id"])
+    
+    for group in user_two_groups: # Check each group's id against the ids in the list, incrementing the counter if a match is found
+
+        if group["group"]["id"] in id_comparison_list:
+            groups_in_common += 1
+
+    return groups_in_common
+
+'''
+Compare's two user's friends
+@param user_one: The first user of whose friends are being compared
+@param user_two: The second user of whose friends are being compared
+@return: The number of friends the two users have in common.
+'''
+def friend_comparison(user_one, user_two):
+    
+    if user_one == None: # If user_one is None, that means two users are not being compared and this function should be skipped
+        return 0
+    
+    # Initialize useful variables
+    user_one_friends = requests.get(f"https://friends.roblox.com/v1/users/{user_one}/friends").json()["data"]
+    user_two_friends = requests.get(f"https://friends.roblox.com/v1/users/{user_two}/friends").json()["data"]
+    friends_in_common = 0
+
+    for user in user_two_friends: # Iterates through every friend in the second user's friends list, comparing them to the first user's friends list and incrementing the counter if a commonality is found
+
+        if user in user_one_friends:
+            friends_in_common += 1
+        
+    return friends_in_common
+
+'''
 Runs a few checks on a given user, comparing them to the 'main account'.
 @param mode: Takes the mode the user selected and doesn't check some criteria if it is the 'badge' mode
-@param main_user: The 'main account' mentioned above. This is always the person whose friends list was checked using friend_check.py
+@param main_user: The 'main account' mentioned above. This is always the person whose friends list was checked
 @param compared_user_id: Takes the user_id of the secondary user so as to reduce the amount of calls made to the Roblox api. The ID is needed to get the badge count.
-@return: Returns a tuple of the status and exit messages. The status represents if the user is a suspected alt. The exit messages describe why they're suspected as an alt (one or more of the above reasons).
+@return: Returns a tuple of the status and exit messages. The status represents if the user is a suspected alt. The exit messages describe why they're suspected as an alt (one or more of the criteria).
 '''
 def compare_username(mode, main_user, compared_user_id):
     
@@ -197,7 +267,24 @@ def compare_username(mode, main_user, compared_user_id):
     exit_messages = []
     compared_username = get_ro_username(compared_user_id).lower()
     main_username = get_ro_username(main_user)
+    alt_age = get_acc_age(compared_user_id)
     env_badge = dotenv_values(f"{path.dirname(path.dirname(__file__))}/.env")["BADGE_ID"] # This is the ID of the badge held in the .env file, used to rule out some false positives
+
+    # The following 3 lines calculates the amount of days since the user acquired the badge
+    days_old = get_badge_date(compared_user_id, env_badge)
+    badge_date = strptime(f"{days_old[0]} {days_old[1]} {days_old[2]} {days_old[3][0:2]} {days_old[3][3:]}", "%Y %m %d %H %M")
+    badge_time = int(ceil((time() - mktime(badge_date)) / 86400))
+
+    friend_num = requests.get(f"https://friends.roblox.com/v1/users/{compared_user_id}/friends/count") # Gets the number of friends a user has
+
+    friends_in_common = friend_comparison(main_user, compared_user_id) # Counts how many friends the two accounts have in common
+
+    # The following 3 lines gets the number of groups a user is in
+    group_req = requests.get(f"https://groups.roblox.com/v1/users/{compared_user_id}/groups/roles").json()
+    group_num = 0
+    for group in group_req["data"]: group_num += 1
+
+    groups_in_common = group_comparison(main_user, compared_user_id) # Count how many groups the accounts are both in
 
     # Counts the amount  of badges the given user has
     badge_req = requests.get(f"https://badges.roblox.com/v1/users/{compared_user_id}/badges", params={"limit": 100})
@@ -209,7 +296,7 @@ def compare_username(mode, main_user, compared_user_id):
         badge_count = len(badge_req.json()["data"])
 
     # Checks a few criteria that could qualify them as an alt and flags them if they meet those criteria
-    if main_username.strip("1234567890").lower() in compared_username and mode != "badge": # Doesn't check if the main username is the same as the compared username if using the badge mode. Doesn't make sense to use this criteria based off what the badge_checker does
+    if main_username.strip("1234567890").lower() in compared_username and mode != "badge" and mode != "user": # Doesn't check if the main username is the same as the compared username if using the badge mode. Doesn't make sense to use this criteria based off what the badge_checker does
 
         status = True
         exit_messages.append("Main username found in username.")
@@ -233,6 +320,30 @@ def compare_username(mode, main_user, compared_user_id):
     if check_barcode(compared_username): # Checks if the user has a barcode username (only I's and L's) These are used to make it harder to find / ban alt accounts as capital I's and lowercase l's are hard to distinguish
         status = True
         exit_messages.append("Barcode username (only I's and L's).")
+
+    if alt_age < 50: # Checks if the user's account is new
+        status = True
+        exit_messages.append("User's account is new.")
+
+    if badge_time < 7: # If they recently got the chosen badge, its possible they've joined to troll / are an alt
+        status = True
+        exit_messages.append("User has recently acquired the badge.")
+
+    if friends_in_common > 15 and mode != "badge" and mode != "user": # Checks how many friends the two accounts share. Higher number = more likely to be an alt but this is very weak evidence
+        status = True
+        exit_messages.append("Accounts share >15 friends.")
+
+    if friend_num < 5: # Checks if the user has friends. If they have little to no friends, they're either sad or an alt. More often than not, its the latter
+        status = True
+        exit_messages.append("User has little to no friends.")
+
+    if groups_in_common > 5 and mode != "badge" and mode != "user": # Checks how many groups the two compared accounts have in common. If two accounts have many groups in common, one is possibly an alt but this is fairly weak
+        status = True
+        exit_messages.append("Accounts share >5 groups in common.")
+
+    if group_num == 0: # Checks if the user is in any groups
+        status = True
+        exit_messages.append("User is in no groups.")
 
     return status, exit_messages
 
