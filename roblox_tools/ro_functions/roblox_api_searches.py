@@ -189,13 +189,12 @@ def check_barcode(username):
 
 '''
 Does some math to calculate a user's account age
-@param user_id: The ID of the user to be checked
+@param info_response: The raw response data which has the desired user's account creation date
 @return: Returns an int of the user's account age in days
 '''
-def get_acc_age(user_id):
+def get_acc_age(info_response):
 
-    test_req = requests.get(f"https://users.roblox.com/v1/users/{user_id}") # Gets the user's account info from the API
-    date_gotten = test_req.json()["created"] # Grabs the 'created' section of the user info
+    date_gotten = info_response.json()["created"] # Grabs the 'created' section of the user info
     
     badge_date = strptime(f"{int(date_gotten[0:4])} {int(date_gotten[5:7])} {int(date_gotten[8:10])} {int(date_gotten[11:13])} {int(date_gotten[14:16])} {int(date_gotten[17:19])}", "%Y %m %d %H %M %S") # Converts the creation date of the account into a time struct
 
@@ -254,6 +253,42 @@ def friend_comparison(user_one, user_two):
     return friends_in_common
 
 '''
+Compares a user's avatar against the basic bacon avatars
+@param user_id: The ID of the user being checked
+@return: Returns true or false depending on if the user is a possible alt or not, with None as a return option if the input ID was bad
+'''
+def avatar_check(user_id):
+    
+    alt_id_lists = [ # A list of common accessory set ups for alts. Can be expanded if necessary.
+        [63690008, 86498048, 86500008, 86500036, 86500054, 86500064, 86500078, 144075659, 144076358, 144076760], 
+        [144075659, 382537569, 1772336109, 4047884939, 4637119437, 4637120072, 4637120775, 4637122096, 4637151279], 
+        [62724852, 382537806, 382538059],
+        [144076436, 144076512, 376526888]
+        ]
+    possible_alt = False
+    
+    avatar_request = requests.get(f"https://avatar.roblox.com/v1/users/{user_id}/currently-wearing") # Gets the user's currently worn accessories
+
+    if avatar_request.status_code == 429: # If we get rate limited, do this
+
+        while avatar_request.status_code == 429: # Loop until we don't get rate limited
+
+            sleep(10)
+            avatar_request = requests.get(f"https://avatar.roblox.com/v1/users/{user_id}/currently-wearing")
+    
+    elif avatar_request.status_code == 404: # If a bad ID was input, return None
+        return None
+
+    user_avatar = avatar_request.json()["assetIds"] # Gets the list of asset IDs
+
+    for avatar in alt_id_lists: # Loops through the above list of common accessory set ups and checks our current user against those.
+        
+        if user_avatar == avatar:
+            possible_alt = True
+    
+    return possible_alt
+
+'''
 Runs a few checks on a given user, comparing them to the 'main account'.
 @param mode: Takes the mode the user selected and doesn't check some criteria if it is the 'badge' mode
 @param main_user: The 'main account' mentioned above. This is always the person whose friends list was checked
@@ -267,8 +302,9 @@ def compare_username(mode, main_user, compared_user_id):
     exit_messages = []
     compared_username = get_ro_username(compared_user_id).lower()
     main_username = get_ro_username(main_user)
-    alt_age = get_acc_age(compared_user_id)
+    alt_info = requests.get(f"https://users.roblox.com/v1/users/{compared_user_id}") # Gets the user's account info from the API
     env_badge = dotenv_values(f"{path.dirname(path.dirname(__file__))}/.env")["BADGE_ID"] # This is the ID of the badge held in the .env file, used to rule out some false positives
+    fav_game_count = len(requests.get(f"https://games.roblox.com/v2/users/{compared_user_id}/favorite/games").json())
 
     # The following 3 lines calculates the amount of days since the user acquired the badge
     days_old = get_badge_date(compared_user_id, env_badge)
@@ -311,23 +347,27 @@ def compare_username(mode, main_user, compared_user_id):
 
         else:
             status = True
-            exit_messages.append("User does not have many badges. (Be aware, this can be a false positive due to privacy settings.)")
+            exit_messages.append("Account does not have many badges. (Be aware, this can be a false positive due to privacy settings.)")
 
     if compared_username.isdigit(): # Check if the user has only numbers in their username
         status = True
-        exit_messages.append("User's username is only numbers.")
+        exit_messages.append("Account's username is only numbers.")
 
     if check_barcode(compared_username): # Checks if the user has a barcode username (only I's and L's) These are used to make it harder to find / ban alt accounts as capital I's and lowercase l's are hard to distinguish
         status = True
         exit_messages.append("Barcode username (only I's and L's).")
 
-    if alt_age < 50: # Checks if the user's account is new
+    if get_acc_age(alt_info) < 50: # Checks if the user's account is new
         status = True
-        exit_messages.append("User's account is new.")
+        exit_messages.append("Account is new. (<50 days old)")
 
     if badge_time < 7: # If they recently got the chosen badge, its possible they've joined to troll / are an alt
         status = True
-        exit_messages.append("User has recently acquired the badge.")
+        exit_messages.append("Account has recently acquired the badge.")
+
+    if alt_info["description"] == '': # Checks if the account has a description. Low effort alts often don't.
+        status = True
+        exit_messages.append("Account has no description.")
 
     if friends_in_common > 15 and mode != "badge" and mode != "user": # Checks how many friends the two accounts share. Higher number = more likely to be an alt but this is very weak evidence
         status = True
@@ -335,7 +375,7 @@ def compare_username(mode, main_user, compared_user_id):
 
     if friend_num < 5: # Checks if the user has friends. If they have little to no friends, they're either sad or an alt. More often than not, its the latter
         status = True
-        exit_messages.append("User has little to no friends.")
+        exit_messages.append("Account has little to no friends.")
 
     if groups_in_common > 5 and mode != "badge" and mode != "user": # Checks how many groups the two compared accounts have in common. If two accounts have many groups in common, one is possibly an alt but this is fairly weak
         status = True
@@ -343,7 +383,11 @@ def compare_username(mode, main_user, compared_user_id):
 
     if group_num == 0: # Checks if the user is in any groups
         status = True
-        exit_messages.append("User is in no groups.")
+        exit_messages.append("Account is in no groups.")
+
+    if fav_game_count == 0: # Checks if the user has any games favorited. Can be an indicator that its an alt and not an account frequently played on.
+        status = True
+        exit_messages.append("Account has no favorite games.")
 
     return status, exit_messages
 
