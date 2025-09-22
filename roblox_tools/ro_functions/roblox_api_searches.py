@@ -6,8 +6,6 @@ from os import path, makedirs
 from dotenv import dotenv_values
 from math import ceil
 
-from rich.console import Console
-
 '''
 Searches for users on Roblox using the supplied keyword
 @arg username_keyword: The keyword to be used to search for users
@@ -388,6 +386,10 @@ def compare_username(mode, main_user, compared_user_id):
     if fav_game_count == 0: # Checks if the user has any games favorited. Can be an indicator that its an alt and not an account frequently played on.
         status = True
         exit_messages.append("Account has no favorite games.")
+
+    if avatar_check(compared_user_id):
+        status == True
+        exit_messages.append("Account has a default avatar of some variety.")
 
     return status, exit_messages
 
